@@ -52,7 +52,7 @@ void *data_readData(void *data) {
 			}
 			else {
 				printf("%s\n", buffer);
-			}			
+			}
 		}
 		else {
 			data_stop(pdata);
@@ -69,7 +69,7 @@ void *data_writeData(void *data) {
 	int userNameLength = strlen(pdata->userName);
 
 	//pre pripad, ze chceme poslat viac dat, ako je kapacita buffra
-	fcntl(STDIN_FILENO, F_SETFL, fcntl(STDIN_FILENO, F_GETFL, 0) | O_NONBLOCK);
+    fcntl(STDIN_FILENO, F_SETFL, fcntl(STDIN_FILENO, F_GETFL, 0) | O_NONBLOCK);
 	fd_set inputs;
     FD_ZERO(&inputs);
 	struct timeval tv;
@@ -87,7 +87,7 @@ void *data_writeData(void *data) {
 					*pos = '\0';
 				}
 				write(pdata->socket, buffer, strlen(buffer) + 1);
-				
+
 				if (strstr(textStart, endMsg) == textStart && strlen(textStart) == strlen(endMsg)) {
 					printf("Koniec komunikacie.\n");
 					data_stop(pdata);
@@ -98,6 +98,29 @@ void *data_writeData(void *data) {
 	fcntl(STDIN_FILENO, F_SETFL, fcntl(STDIN_FILENO, F_GETFL, 0) & ~O_NONBLOCK);
 	
 	return NULL;
+}
+
+void *data_cleanup(void *data) {
+    CLEANUP_DATA * cleanup_data = data;
+
+    while (cleanup_data->clean == 1) {
+        sleep(5);
+        for (int i = 0; i < CLIENTS; i++) {
+            if (cleanup_data->availablePlaces[i] == 0) {
+//                inactive = false;
+//                inactivityTime = -1;
+                if (data_isStopped(cleanup_data->multipleData[i]) == 1) {
+                    printf("Upratujem po klientovi");
+                    //uzavretie socketu klienta <unistd.h>
+                    close(cleanup_data->multipleData[i]->socket);
+                    data_destroy(cleanup_data->multipleData[i]);
+                    cleanup_data->multipleData[i] = NULL;
+                    cleanup_data->availablePlaces[i] = 1;
+                }
+            }
+        }
+    }
+    return NULL;
 }
 
 void printError(char *str) {

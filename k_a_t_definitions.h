@@ -9,6 +9,8 @@ extern "C" {
 
 #define USER_LENGTH 10
 #define BUFFER_LENGTH 300
+#define CLIENTS 1
+#define INACTIVITY_TIMEOUT 10 //seconds
 extern char *endMsg;
 
 typedef struct data {
@@ -18,12 +20,19 @@ typedef struct data {
     int stop;
 } DATA;
 
+typedef struct cleanupData {
+    DATA ** multipleData;
+    int * availablePlaces;
+    int clean;
+} CLEANUP_DATA;
+
 void data_init(DATA *data, const char* userName, const int socket);
 void data_destroy(DATA *data);
 void data_stop(DATA *data);
 int data_isStopped(DATA *data);
 void *data_readData(void *data);
 void *data_writeData(void *data);
+void *data_cleanup(void *data);
 
 void printError(char *str);
 
