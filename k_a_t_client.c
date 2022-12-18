@@ -1,3 +1,4 @@
+#include "client_definitions.h"
 #include "k_a_t_definitions.h"
 
 #include <stdlib.h>
@@ -8,57 +9,45 @@
 #include <netdb.h>
 #include <unistd.h>
 #include <pthread.h>
+#include <stdio.h>
 
 int main(int argc, char *argv[]) {
-    if (argc < 4) {
-        printError("Klienta je nutne spustit s nasledujucimi argumentmi: adresa port pouzivatel.");
+    if (argc < 2) {
+        printError("Mandatory parameters: address");
     }
-    
-    //ziskanie adresy a portu servera <netdb.h>
     struct hostent *server = gethostbyname(argv[1]);
     if (server == NULL) {
-        printError("Server neexistuje.");
+        printError("ERROR: Server does not exist.");
     }
-    int port = atoi(argv[2]);
-	if (port <= 0) {
-		printError("Port musi byt cele cislo vacsie ako 0.");
-	}
-    char *userName = argv[3];
-    
-    //vytvorenie socketu <sys/socket.h>
-    int sock = socket(AF_INET, SOCK_STREAM, 0);
-    if (sock < 0) {
-        printError("Chyba - socket.");        
+    FTP_DATA ftpData;
+    FTPS_DATA ftpsData;
+    HTTP_DATA httpData;
+    ftpData.server = server;
+    ftpsData.server = server;
+    httpData.server = server;
+
+    while (1) {
+        int choice = level1_choices();
+        pthread_t serviceThread;
+        switch (choice) {
+            case 1:
+                ftpData.controlPort = FTP_CONTROL_PORT;
+                pthread_create(&serviceThread, NULL, ftp_control_clientSocket, (void *) &ftpData);
+                break;
+            case 2:
+                ftpsData.controlPort = FTP_CONTROL_PORT;
+                pthread_create(&serviceThread, NULL, ftps_control_clientSocket, (void *) &ftpsData);
+                break;
+            case 3:
+                httpData.port = HTTP_PORT;
+                pthread_create(&serviceThread, NULL, http_clientSocket, (void *) &httpData);
+                break;
+            default:
+                continue;
+        }
+
+        pthread_join(serviceThread, NULL);
     }
-    
-    //definovanie adresy servera <arpa/inet.h>
-    struct sockaddr_in serverAddress;
-    bzero((char *)&serverAddress, sizeof(serverAddress));
-    serverAddress.sin_family = AF_INET;
-    bcopy((char *)server->h_addr, (char *)&serverAddress.sin_addr.s_addr, server->h_length);
-    serverAddress.sin_port = htons(port);
 
-    if (connect(sock,(struct sockaddr *)&serverAddress, sizeof(serverAddress)) < 0) {
-        printError("Chyba - connect.");        
-    }
-    
-	//inicializacia dat zdielanych medzi vlaknami
-    DATA data;
-	data_init(&data, userName, sock);
-	
-	//vytvorenie vlakna pre zapisovanie dat do socketu <pthread.h>
-    pthread_t thread;
-    pthread_create(&thread, NULL, data_writeData, (void *)&data);
-
-	//v hlavnom vlakne sa bude vykonavat citanie dat zo socketu
-	data_readData((void *)&data);
-
-	//pockame na skoncenie zapisovacieho vlakna <pthread.h>
-	pthread_join(thread, NULL);
-	data_destroy(&data);
-
-    //uzavretie socketu <unistd.h>
-    close(sock);
-    
-    return (EXIT_SUCCESS);
+    return(EXIT_SUCCESS);
 }
