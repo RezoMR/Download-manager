@@ -100,7 +100,7 @@ void * ftp_data_clientSocket(void * data) {
     FTP_DATA * ftpData = (FTP_DATA *)data;
     int sock = ftpData->dataSock;
 
-    int	file_size, receivedBytes;
+    int	receivedBytes;
     char fileData[1024];
     char * fileName = ftp_data_fileName();
     char reply[BUFSIZ];
@@ -126,8 +126,6 @@ void * ftp_data_clientSocket(void * data) {
         if (!file) {
             printf("Error writing file\n");
         } else {
-            //recv(sock, &file_size, sizeof(int), 0);
-            //write(file_desc, fileData, file_size);
             while ((receivedBytes = recv(sock, fileData, 1024, 0))) {
                 fwrite(fileData, 1, receivedBytes, file);
             }
