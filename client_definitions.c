@@ -376,23 +376,23 @@ char * http_filePath() {
         break;
     }
 
-    return "/stackexchange/img/logos/so/so-logo-med.png";
+    return string;
 }
 
 char * prepareHttpHeaders(char * serverAddress, char * filePath) {
     //"GET /index.html HTTP/1.1\r\nHost: www.example.com\r\n\r\n";
-    char * headers = malloc(sizeof(char) * (BUFSIZ));
+    char * headers = malloc(sizeof(char) * (1024));
     strcpy(headers, "GET ");
     strcat(headers, filePath);
-    strcat(headers, " HTTP/1.1\\r\\nHost: ");
+    strcat(headers, " HTTP/1.1\r\nHost: ");
     strcat(headers, serverAddress);
-    strcat(headers, "\\r\\n\\r\\n");
+    strcat(headers, "\r\n\r\n");
 
     return headers;
 }
 
 int readHttpStatus(int sock) {
-    char buffer[BUFSIZ];
+    char buffer[1024];
     char * ptr = buffer + 1;
     int receivedBytes, response;
 
@@ -401,15 +401,17 @@ int readHttpStatus(int sock) {
             printf("ERROR: Reading HTTP status.");
             return 0;
         }
-        if (*ptr == '\n' && ptr[-1] == '\n')
+        if (*ptr == '\n' && ptr[-1] == '\r')
             break;
         ptr++;
     }
     *ptr = 0;
-    ptr = buffer+1;
+    ptr = buffer + 1;
+    printf("%s", ptr);
 
     sscanf(ptr,"%*s %d ", &response);
     printf("HTTP response status: %d\n", response);
+    printf("Received bytes: %d\n", receivedBytes);
     if (receivedBytes > 0)
         return response;
     return 0;
@@ -422,7 +424,7 @@ int parseHttpHeader(int sock) {
 
     while((receivedBytes = recv(sock, ptr, 1, 0))){
         if(receivedBytes == -1){
-            printf("ERROR: Parse header.");
+            printf("ERROR: Parse header.\n");
             return 0;
         }
 
@@ -462,7 +464,7 @@ void * http_clientSocket(void * data) {
         printf("ERROR: HTTP response status.\n");
         close(sock);
         free(httpRequestHeaders);
-        //free(filePath);
+        free(filePath);
         return NULL;
     }
 
@@ -477,10 +479,14 @@ void * http_clientSocket(void * data) {
 
     char * fileName = strrchr(filePath, '/') + 1;
 
-    int receivedBytes = 0, savedBytes = 0;
+    int receivedBytes, savedBytes = 0;
     char receivedData[1024];
     FILE* file = fopen(fileName,"wb");
-    printf("HTTP downloading file.");
+    if (!file) {
+        printf("Error writing file");
+        return 0;
+    }
+    printf("HTTP downloading file: %s.\n", fileName);
 
     while((receivedBytes = recv(sock, receivedData, 1024, 0))){
         if(receivedBytes == -1){
