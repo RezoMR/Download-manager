@@ -2,13 +2,12 @@
 #include <stdbool.h>
 #include <arpa/inet.h>
 #include <netdb.h>
-
-#include<openssl/bio.h>
-#include<openssl/ssl.h>
-#include<openssl/err.h>
-#include<openssl/pem.h>
-#include<openssl/x509.h>
-#include<openssl/x509_vfy.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/socket.h>
+#include <unistd.h>
+#include <stdbool.h>
 
 #ifdef	__cplusplus
 extern "C" {
