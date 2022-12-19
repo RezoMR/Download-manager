@@ -134,10 +134,11 @@ void * http_clientSocket(void * data) {
         return 0;
     }
     printf("HTTP downloading file: %s.\n", fileName);
+    httpData->exit = 1;
 
     while((receivedBytes = recv(sock, receivedData, 1024, 0))){
         if(receivedBytes == -1){
-            printf("ERROR: HTTP receive file.");
+            printf("ERROR: HTTP receive file.\n");
             break;
         }
 

@@ -15,7 +15,8 @@
 
 #define FTP_CONTROL_PORT 21
 #define HTTP_PORT 80
-#define HTTPS_PORT 2443
+
+#define DEBUG false
 
 #ifdef	__cplusplus
 extern "C" {

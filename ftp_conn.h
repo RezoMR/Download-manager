@@ -21,6 +21,8 @@ typedef struct ftpData {
     int dataPort;
     int controlSock;
     int dataSock;
+    char * fileName;
+    int exit;
 } FTP_DATA;
 
 typedef struct ftpsData {

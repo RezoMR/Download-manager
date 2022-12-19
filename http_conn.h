@@ -18,6 +18,7 @@ typedef struct httpData {
     struct hostent *server;
     int port;
     int * sock;
+    int exit;
 } HTTP_DATA;
 
 void * http_clientSocket(void * data);

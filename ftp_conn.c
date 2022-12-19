@@ -102,16 +102,19 @@ void * ftp_data_clientSocket(void * data) {
 
     int	receivedBytes;
     char fileData[1024];
-    char * fileName = ftp_data_fileName();
+    char * fileName = ftpData->fileName;
     char reply[BUFSIZ];
     char command[256];
     bzero(command, 256);
     bzero(reply, BUFSIZ);
 
-    printf("Setting binary mode\n");
+
+    if (DEBUG)
+        printf("Setting binary mode\n");
     write(ftpData->controlSock, "TYPE I\r\n", 8);
     recv(ftpData->controlSock, reply, BUFSIZ, 0);
-    printf("Response %s", reply);
+    if (DEBUG)
+        printf("Response %s", reply);
     bzero(command, 256);
     bzero(reply, BUFSIZ);
 
@@ -120,11 +123,12 @@ void * ftp_data_clientSocket(void * data) {
     strcat(command, "\r\n");
     write(ftpData->controlSock, command, strlen(command));
     recv(ftpData->controlSock, reply, BUFSIZ, 0);
-    printf("Response %s", reply);
+    if (DEBUG)
+        printf("Response %s", reply);
     if (atoi(reply) == 200 || atoi(reply) == 150) {
         FILE* file = fopen(fileName,"wb");
         if (!file) {
-            printf("Error writing file\n");
+            printf("Error writing file during FTP file download\n");
         } else {
             while ((receivedBytes = recv(sock, fileData, 1024, 0))) {
                 fwrite(fileData, 1, receivedBytes, file);
@@ -132,6 +136,7 @@ void * ftp_data_clientSocket(void * data) {
             fclose(file);
         }
     }
+    printf("File downloaded successfully using FTP protocol.\n");
     logAction(fileName, FTP_CONTROL_PORT);
     free(fileName);
     return NULL;
@@ -284,7 +289,9 @@ void * ftp_control_clientSocket(void * data) {
 
         switch (value) {
             case 1:
+                ftpData->fileName = ftp_data_fileName();
                 pthread_create(&controlThread, NULL, ftp_data_clientSocket, (void *)ftpData);
+                ftpData->exit = 1;
                 pthread_join(controlThread, NULL);
                 break;
             case 2:
@@ -302,12 +309,16 @@ void * ftp_control_clientSocket(void * data) {
                 break;
         }
         if (ftpData->dataSock != -1) {
-            printf("Closing data channel\n");
+            if (DEBUG)
+                printf("Closing data channel\n");
             close(ftpData->dataSock);
             bzero(response, BUFSIZ);
             recv(sock, response, BUFSIZ, 0);
-            printf("Received response %s\n", response);
+            if (DEBUG)
+                printf("Received response %s\n", response);
         }
+        if (ftpData->exit == 1)
+            return NULL;
     }
 }
 

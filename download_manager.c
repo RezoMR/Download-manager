@@ -20,6 +20,9 @@ int main(int argc, char *argv[]) {
     int level0Choice, level1Choice;
 
     while (1) {
+        while (ftpData.exit == 0 || httpData.exit == 0) {
+            sleep(1);
+        }
         pthread_t serviceThread;
         level0Choice = level0Choices();
         switch (level0Choice) {
@@ -33,6 +36,7 @@ int main(int argc, char *argv[]) {
                     case 1:
                         ftpData.controlPort = FTP_CONTROL_PORT;
                         ftpData.server = server;
+                        ftpData.exit = 0;
                         pthread_create(&serviceThread, NULL, ftp_control_clientSocket, (void *) &ftpData);
                         break;
                     case 2:
@@ -43,13 +47,15 @@ int main(int argc, char *argv[]) {
                     case 3:
                         httpData.port = HTTP_PORT;
                         httpData.server = server;
+                        httpData.exit = 0;
                         pthread_create(&serviceThread, NULL, http_clientSocket, (void *) &httpData);
                         break;
                     case 0:
                     default:
                         continue;
                 }
-                pthread_join(serviceThread, NULL);
+                if (DEBUG)
+                    pthread_join(serviceThread, NULL);
                 break;
             case 2:
                 printLogHistory();
