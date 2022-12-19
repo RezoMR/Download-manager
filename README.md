@@ -9,7 +9,7 @@ Zadanie:
 Testovanie aplikacie:
  - FTP
    - ftp.debian.org
-   - http://mirror.lnx.sk
+   - mirror.lnx.sk
  - HTTP
    - mirror.dkm.cz
      - /debian-cd/11.6.0/amd64/iso-bd/debian-edu-11.6.0-amd64-BD-1.iso (bigger)
