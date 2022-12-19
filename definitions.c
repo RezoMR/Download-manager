@@ -43,6 +43,38 @@ int createSocket(struct hostent * server, int port) {
     return sock;
 }
 
+int logAction(char * fileName, int port) {
+    FILE* file = fopen("log/history.txt","a+");
+    if (!file) {
+        printf("Error during logging. Log will be missing, sadly :(");
+        return 1;
+    }
+
+    time_t t = time(NULL);
+    struct tm *tm = localtime(&t);
+    char timeString[64];
+    strftime(timeString, sizeof(timeString), "%c", tm);
+
+    fprintf(file, "%s %d %s\n", timeString, port, fileName);
+    fclose(file);
+    return 0;
+}
+
+void printLogHistory() {
+    FILE * file = fopen("log/history.txt","r");
+    if (!file) {
+        printf("Error occurred during log reading, can't show saved logs\n");
+    } else {
+        char string[256];
+        printf("\nDownload history:\n");
+        while (fgets(string, 256, file) != NULL) {
+            printf("%s", string);
+        }
+        printf("\n");
+        fclose(file);
+    }
+}
+
 int level1Choices() {
     int choice;
 
@@ -66,6 +98,7 @@ int level0Choices() {
     int choice;
 
     printf("Press 1 to download a file\n");
+    printf("Press 2 to show download history\n");
     printf("Press 0 to end application\n");
     while (1) {
         if (scanf("%d", &choice) == 1)

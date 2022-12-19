@@ -106,7 +106,6 @@ void * http_clientSocket(void * data) {
     char * filePath = http_filePath();
     char * httpRequestHeaders = prepareHttpHeaders(httpData->server->h_name, filePath);
     send(sock, httpRequestHeaders, strlen(httpRequestHeaders), 0);
-    printf("%s\n", httpRequestHeaders);
 
     if (readHttpStatus(sock) == 0) {
         printf("ERROR: HTTP response status.\n");
@@ -147,8 +146,10 @@ void * http_clientSocket(void * data) {
         if (savedBytes == contentLength)
             break;
     }
+    printf("HTTP file successfully downloaded.\n");
 
     fclose(file);
+    logAction(fileName, FTP_CONTROL_PORT);
     close(sock);
     free(httpRequestHeaders);
     free(filePath);

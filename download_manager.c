@@ -51,6 +51,9 @@ int main(int argc, char *argv[]) {
                 }
                 pthread_join(serviceThread, NULL);
                 break;
+            case 2:
+                printLogHistory();
+                break;
             case 0:
                 return(EXIT_SUCCESS);
 

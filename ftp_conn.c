@@ -19,10 +19,10 @@
 int ftp_control_choices() {
     int choice;
 
-    printf("Press 0 for BYE command\n");
     printf("Press 1 for GET command\n");
     printf("Press 2 for LIST command\n");
     printf("Press 3 for CD command\n");
+    printf("Press 0 for BYE command\n");
     while (1) {
         if (scanf("%d", &choice) == 1)
             break;
@@ -132,7 +132,7 @@ void * ftp_data_clientSocket(void * data) {
             fclose(file);
         }
     }
-
+    logAction(fileName, FTP_CONTROL_PORT);
     free(fileName);
     return NULL;
 }
