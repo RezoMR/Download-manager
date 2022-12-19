@@ -30,30 +30,15 @@ typedef struct ftpsData {
     SSL * dataSock;
 } FTPS_DATA;
 
-typedef struct httpData {
-    struct hostent *server;
-    int port;
-    int * sock;
-} HTTP_DATA;
-
-int level1_choices();
 int ftp_control_choices();
 char * ftp_data_fileName();
 int ftp_login(const int *socket);
 int ftp_data_extractPort(char * string);
 
-char * http_filePath();
-char * prepareHttpHeaders(char * serverAddress, char * filePath);
-int readHttpStatus(int sock);
-int parseHttpHeader(int sock);
-
 void * ftp_control_clientSocket(void * data);
 void * ftp_data_clientSocket(void * data);
 void * ftps_control_clientSocket(void * data);
 void * ftps_data_clientSocket(void * data);
-void * http_clientSocket(void * data);
-
-int createSocket(struct hostent * server, int port);
 SSL * createSSL();
 
 #ifdef	__cplusplus
