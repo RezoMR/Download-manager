@@ -98,7 +98,7 @@ struct hostent * createServer() {
     char * string = prompt_fileName();
     struct hostent * server = gethostbyname(string);
     if (server == NULL) {
-        printError("ERROR: Server does not exist.");
+        printf("ERROR: Server does not exist.");
     }
 
     free(string);

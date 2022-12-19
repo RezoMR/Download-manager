@@ -57,8 +57,6 @@ int readHttpStatus(int sock) {
             break;
         ptr++;
     }
-    *ptr = 0;
-    ptr = buffer + 1;
 
     sscanf(ptr,"%*s %d ", &response);
     printf("HTTP response status: %d\n", response);
@@ -133,7 +131,7 @@ void * http_clientSocket(void * data) {
     char receivedData[1024];
     FILE* file = fopen(fileName,"wb");
     if (!file) {
-        printf("Error writing file");
+        printf("Error writing file\n");
         return 0;
     }
     printf("HTTP downloading file: %s.\n", fileName);

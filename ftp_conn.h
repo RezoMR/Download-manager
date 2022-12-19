@@ -2,6 +2,7 @@
 #include <stdbool.h>
 #include <arpa/inet.h>
 #include <netdb.h>
+#include <ctype.h>
 
 #include<openssl/bio.h>
 #include<openssl/ssl.h>
@@ -18,8 +19,8 @@ typedef struct ftpData {
     struct hostent *server;
     int controlPort;
     int dataPort;
-    int * controlSock;
-    int * dataSock;
+    int controlSock;
+    int dataSock;
 } FTP_DATA;
 
 typedef struct ftpsData {
@@ -32,11 +33,17 @@ typedef struct ftpsData {
 
 int ftp_control_choices();
 char * ftp_data_fileName();
+char * ftp_cwd_path();
 int ftp_login(const int *socket);
 int ftp_data_extractPort(char * string);
 
+char * recvData(int socket);
+
 void * ftp_control_clientSocket(void * data);
 void * ftp_data_clientSocket(void * data);
+void ftp_data_list(FTP_DATA * data);
+void ftp_data_cwd(FTP_DATA * data);
+void ftp_quit(FTP_DATA * data);
 void * ftps_control_clientSocket(void * data);
 void * ftps_data_clientSocket(void * data);
 SSL * createSSL();

@@ -50,6 +50,7 @@ int main(int argc, char *argv[]) {
                         continue;
                 }
                 pthread_join(serviceThread, NULL);
+                break;
             case 0:
                 return(EXIT_SUCCESS);
 
