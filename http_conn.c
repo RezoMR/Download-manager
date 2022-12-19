@@ -1,21 +1,6 @@
 #include "definitions.h"
 #include "http_conn.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <errno.h>
-#include <sys/sendfile.h>
-#include <stdio.h>
-#include <string.h>
-#include <sys/socket.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <arpa/inet.h>
-#include <unistd.h>
-#include <stdbool.h>
-#include <pthread.h>
-
 char * http_filePath() {
     char * string = malloc(sizeof(char) * (255 + 1));
 

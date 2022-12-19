@@ -79,8 +79,7 @@ int level1Choices() {
     int choice;
 
     printf("Press 1 for FTP transfer\n");
-    printf("Press 2 for FTPS transfer\n");
-    printf("Press 3 for HTTP transfer\n");
+    printf("Press 2 for HTTP transfer\n");
     printf("Press 0 to go back\n");
     while (1) {
         if (scanf("%d", &choice) == 1)

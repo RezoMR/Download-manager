@@ -14,7 +14,6 @@
 
 int main(int argc, char *argv[]) {
     FTP_DATA ftpData;
-    FTPS_DATA ftpsData;
     HTTP_DATA httpData;
     struct hostent * server;
     int level0Choice, level1Choice;
@@ -40,11 +39,6 @@ int main(int argc, char *argv[]) {
                         pthread_create(&serviceThread, NULL, ftp_control_clientSocket, (void *) &ftpData);
                         break;
                     case 2:
-                        ftpsData.controlPort = FTP_CONTROL_PORT;
-                        ftpsData.server = server;
-                        pthread_create(&serviceThread, NULL, ftps_control_clientSocket, (void *) &ftpsData);
-                        break;
-                    case 3:
                         httpData.port = HTTP_PORT;
                         httpData.server = server;
                         httpData.exit = 0;

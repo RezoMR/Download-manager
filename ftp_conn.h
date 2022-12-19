@@ -3,13 +3,14 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <ctype.h>
-
-#include<openssl/bio.h>
-#include<openssl/ssl.h>
-#include<openssl/err.h>
-#include<openssl/pem.h>
-#include<openssl/x509.h>
-#include<openssl/x509_vfy.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/sendfile.h>
+#include <sys/socket.h>
+#include <unistd.h>
+#include <stdbool.h>
+#include <pthread.h>
 
 #ifdef	__cplusplus
 extern "C" {
@@ -25,14 +26,6 @@ typedef struct ftpData {
     int exit;
 } FTP_DATA;
 
-typedef struct ftpsData {
-    struct hostent *server;
-    int controlPort;
-    int dataPort;
-    SSL * controlSock;
-    SSL * dataSock;
-} FTPS_DATA;
-
 int ftp_control_choices();
 char * ftp_data_fileName();
 char * ftp_cwd_path();
@@ -46,9 +39,6 @@ void * ftp_data_clientSocket(void * data);
 void ftp_data_list(FTP_DATA * data);
 void ftp_data_cwd(FTP_DATA * data);
 void ftp_quit(FTP_DATA * data);
-void * ftps_control_clientSocket(void * data);
-void * ftps_data_clientSocket(void * data);
-SSL * createSSL();
 
 #ifdef	__cplusplus
 }
