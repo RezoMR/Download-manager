@@ -82,7 +82,7 @@ char * ftp_cwd_path() {
 }
 
 void * ftp_data_clientSocket(void * data) {
-    FTP_DATA * ftpData = (FTP_DATA *)data;
+    DATA * ftpData = (DATA *)data;
     int sock = ftpData->dataSock;
 
     int	receivedBytes;
@@ -92,7 +92,6 @@ void * ftp_data_clientSocket(void * data) {
     char command[256];
     bzero(command, 256);
     bzero(reply, BUFSIZ);
-
 
     if (DEBUG)
         printf("Setting binary mode\n");
@@ -116,19 +115,24 @@ void * ftp_data_clientSocket(void * data) {
             printf("Error writing file during FTP file download\n");
         } else {
             while ((receivedBytes = recv(sock, fileData, 1024, 0))) {
+                if (ftpData->finished == 1) {
+                    close(sock);
+                    fclose(file);
+                    return NULL;
+                }
                 fwrite(fileData, 1, receivedBytes, file);
             }
             fclose(file);
         }
+        logAction(fileName, FTP_CONTROL_PORT);
     }
-    printf("File downloaded successfully using FTP protocol.\n");
-    logAction(fileName, FTP_CONTROL_PORT);
-    free(fileName);
+    if (DEBUG)
+        printf("File downloaded successfully using FTP protocol.\n");
     return NULL;
 }
 
-void ftp_data_list(FTP_DATA * data) {
-    FTP_DATA * ftpData = data;
+void ftp_data_list(DATA * data) {
+    DATA * ftpData = data;
     int sock = ftpData->dataSock;
 
     char reply[BUFSIZ];
@@ -149,8 +153,8 @@ void ftp_data_list(FTP_DATA * data) {
     }
 }
 
-void ftp_data_cwd(FTP_DATA * data) {
-    FTP_DATA * ftpData = data;
+void ftp_data_cwd(DATA * data) {
+    DATA * ftpData = data;
     char command[256];
 
     char * dir = ftp_cwd_path();
@@ -166,11 +170,12 @@ void ftp_data_cwd(FTP_DATA * data) {
     free(dir);
 }
 
-void ftp_quit(FTP_DATA * data) {
+void ftp_quit(DATA * data) {
     char response[BUFSIZ];
     write(data->controlSock, "QUIT\r\n", 6);
     recv(data->controlSock, response, BUFSIZ, 0);
-    printf("Received response %s\n", response);
+    if (DEBUG)
+        printf("Received response %s\n", response);
 }
 
 
@@ -240,7 +245,7 @@ int ftp_data_extractPort(char * string) {
 }
 
 void * ftp_control_clientSocket(void * data) {
-    FTP_DATA * ftpData = (FTP_DATA *)data;
+    DATA * ftpData = (DATA *)data;
     int sock = createSocket(ftpData->server, ftpData->controlPort);
     ftpData->controlSock = sock;
 
@@ -286,10 +291,8 @@ void * ftp_control_clientSocket(void * data) {
                 ftp_data_cwd(ftpData);
                 break;
             case 0:
-                ftp_quit(ftpData);
-                close(sock);
-                free(response);
-                return NULL;
+                ftpData->exit = 1;
+                break;
             default:
                 break;
         }
@@ -302,7 +305,12 @@ void * ftp_control_clientSocket(void * data) {
             if (DEBUG)
                 printf("Received response %s\n", response);
         }
-        if (ftpData->exit == 1)
+        if (ftpData->exit == 1) {
+            ftp_quit(ftpData);
+            close(sock);
+            free(response);
+            ftpData->finished = 1;
             return NULL;
+        }
     }
 }

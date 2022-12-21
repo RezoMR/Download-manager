@@ -46,7 +46,8 @@ int createSocket(struct hostent * server, int port) {
 int logAction(char * fileName, int port) {
     FILE* file = fopen("log/history.txt","a+");
     if (!file) {
-        printf("Error during logging. Log will be missing, sadly :(");
+        if (DEBUG)
+            printf("Error during logging. Log will be missing, sadly :(\n");
         return 1;
     }
 
@@ -75,6 +76,71 @@ void printLogHistory() {
     }
 }
 
+int showDownloadsChoices() {
+    int choice;
+
+    printf("Press 1 to show running downloads\n");
+    printf("Press 2 cancel a download\n");
+    printf("Press 3 to stop a download\n");
+    printf("Press 0 to go back\n");
+    while (1) {
+        if (scanf("%d", &choice) == 1)
+            break;
+        else
+            printf("You put in wrong value... please retry\n");
+        while (getchar() != '\n')
+            continue;
+    }
+
+    return choice;
+}
+
+int getDownloadToCancel() {
+    int choice;
+
+    printf("Put in ID of a download to cancel\n");
+    while (1) {
+        if (scanf("%d", &choice) == 1)
+            break;
+        else
+            printf("You put in wrong value... please retry\n");
+        while (getchar() != '\n')
+            continue;
+    }
+
+    return choice;
+}
+
+void showDownloads(DATA ** downloads) {
+    int id;
+
+    while(1) {
+        int choice = showDownloadsChoices();
+        switch (choice) {
+            case 1:
+                for (int i = 0; i < ALLOWED_DOWNLOADS; i++) {
+                    if (downloads[i] != NULL) {
+                        printf("ID: %d; PROTOCOL: %d; NAME: %s\n", i, downloads[i]->controlPort,
+                               downloads[i]->fileName);
+                    }
+                }
+                break;
+            case 2:
+                id = getDownloadToCancel();
+
+                if (downloads[id] == NULL)
+                    printf("Download with this ID does not exist!\n");
+                else {
+                    downloads[id]->finished = 1;
+                }
+                break;
+            default:
+                break;
+        }
+        break;
+    }
+}
+
 int level1Choices() {
     int choice;
 
@@ -98,6 +164,7 @@ int level0Choices() {
 
     printf("Press 1 to download a file\n");
     printf("Press 2 to show download history\n");
+    printf("Press 3 to show actions for running downloads\n");
     printf("Press 0 to end application\n");
     while (1) {
         if (scanf("%d", &choice) == 1)
@@ -130,7 +197,7 @@ struct hostent * createServer() {
     char * string = prompt_fileName();
     struct hostent * server = gethostbyname(string);
     if (server == NULL) {
-        printf("ERROR: Server does not exist.");
+        printf("ERROR: Server does not exist\n");
     }
 
     free(string);

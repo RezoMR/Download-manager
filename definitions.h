@@ -6,15 +6,9 @@
 #include <assert.h>
 #include <stdio.h>
 
-#include<openssl/bio.h>
-#include<openssl/ssl.h>
-#include<openssl/err.h>
-#include<openssl/pem.h>
-#include<openssl/x509.h>
-#include<openssl/x509_vfy.h>
-
 #define FTP_CONTROL_PORT 21
 #define HTTP_PORT 80
+#define ALLOWED_DOWNLOADS 3
 
 #define DEBUG false
 
@@ -22,14 +16,30 @@
 extern "C" {
 #endif
 
+typedef struct data {
+    struct hostent *server;
+    int controlPort;
+    int dataPort;
+    int controlSock;
+    int dataSock;
+    char * fileName;
+    int exit;
+    int stopped;
+    int finished;
+    pthread_t * thread;
+} DATA;
+
 void printError(char *str);
 
 int level1Choices();
 int level0Choices();
+int showDownloadsChoices();
+int getDownloadToCancel();
 
 int createSocket(struct hostent * server, int port);
 int logAction(char * fileName, int port);
 void printLogHistory();
+void showDownloads(DATA ** downloads);
 
 struct hostent * createServer();
 

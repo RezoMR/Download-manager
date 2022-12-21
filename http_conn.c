@@ -17,7 +17,6 @@ char * http_filePath() {
 }
 
 char * prepareHttpHeaders(char * serverAddress, char * filePath) {
-    //"GET /index.html HTTP/1.1\r\nHost: www.example.com\r\n\r\n";
     char * headers = malloc(sizeof(char) * (1024));
     strcpy(headers, "GET ");
     strcat(headers, filePath);
@@ -30,12 +29,13 @@ char * prepareHttpHeaders(char * serverAddress, char * filePath) {
 
 int readHttpStatus(int sock) {
     char buffer[1024];
+    bzero(buffer, 1024);
     char * ptr = buffer + 1;
     int receivedBytes, response;
 
     while((receivedBytes = recv(sock, ptr, 1, 0))){
         if(receivedBytes == -1){
-            printf("ERROR: Reading HTTP status.");
+            printf("ERROR: Reading HTTP status\n");
             return 0;
         }
         if (*ptr == '\n' && ptr[-1] == '\r')
@@ -43,7 +43,10 @@ int readHttpStatus(int sock) {
         ptr++;
     }
 
-    sscanf(ptr,"%*s %d ", &response);
+    ptr = buffer + 1;
+    strtok(ptr, " ");
+    char * result = strtok(NULL, " ");
+    response = atoi(result);
     printf("HTTP response status: %d\n", response);
     if (receivedBytes > 0)
         return response;
@@ -57,7 +60,7 @@ int parseHttpHeader(int sock) {
 
     while((receivedBytes = recv(sock, ptr, 1, 0))){
         if(receivedBytes == -1){
-            printf("ERROR: Parse header.\n");
+            printf("ERROR: Parse header\n");
             return 0;
         }
 
@@ -85,18 +88,22 @@ int parseHttpHeader(int sock) {
 }
 
 void * http_clientSocket(void * data) {
-    HTTP_DATA * httpData = (HTTP_DATA *)data;
-    int sock = createSocket(httpData->server, httpData->port);
+    DATA * httpData = (DATA *)data;
+    int sock = createSocket(httpData->server, httpData->controlPort);
 
     char * filePath = http_filePath();
     char * httpRequestHeaders = prepareHttpHeaders(httpData->server->h_name, filePath);
+    char * fileName = malloc(sizeof(char) * 256);
+    fileName = strcpy(fileName, strrchr(filePath, '/') + 1);
+    httpData->fileName = fileName;
     send(sock, httpRequestHeaders, strlen(httpRequestHeaders), 0);
 
-    if (readHttpStatus(sock) == 0) {
-        printf("ERROR: HTTP response status.\n");
+    if (readHttpStatus(sock) != 200) {
+        printf("ERROR: HTTP response status\n");
         close(sock);
         free(httpRequestHeaders);
         free(filePath);
+        httpData->finished = 1;
         return NULL;
     }
 
@@ -106,10 +113,9 @@ void * http_clientSocket(void * data) {
         close(sock);
         free(httpRequestHeaders);
         free(filePath);
+        httpData->finished = 1;
         return NULL;
     }
-
-    char * fileName = strrchr(filePath, '/') + 1;
 
     int receivedBytes, savedBytes = 0;
     char receivedData[1024];
@@ -122,9 +128,15 @@ void * http_clientSocket(void * data) {
     httpData->exit = 1;
 
     while((receivedBytes = recv(sock, receivedData, 1024, 0))){
-        if(receivedBytes == -1){
-            printf("ERROR: HTTP receive file.\n");
-            break;
+        if(receivedBytes == -1 || httpData->finished == 1){
+            if (DEBUG)
+                printf("ERROR: HTTP receive file.\n");
+            fclose(file);
+            close(sock);
+            free(httpRequestHeaders);
+            free(filePath);
+
+            return NULL;
         }
 
         fwrite(receivedData,1,receivedBytes,file);
@@ -132,13 +144,15 @@ void * http_clientSocket(void * data) {
         if (savedBytes == contentLength)
             break;
     }
-    printf("HTTP file successfully downloaded.\n");
+    if (DEBUG)
+        printf("HTTP file successfully downloaded.\n");
 
     fclose(file);
-    logAction(fileName, FTP_CONTROL_PORT);
+    logAction(fileName, HTTP_PORT);
     close(sock);
     free(httpRequestHeaders);
     free(filePath);
+    httpData->finished = 1;
 
     return NULL;
 }

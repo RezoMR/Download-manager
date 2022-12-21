@@ -13,4 +13,7 @@ Testovanie aplikacie:
  - HTTP
    - mirror.dkm.cz
      - /debian-cd/11.6.0/amd64/iso-bd/debian-edu-11.6.0-amd64-BD-1.iso (bigger)
+     - /debian-cd/current/amd64/iso-cd/debian-11.6.0-amd64-netinst.iso (medium)
      - /debian-cd/11.6.0/amd64/iso-bd/HEADER.html (smaller)
+   - mirror.lnx.sk
+     - /www/arch.png
