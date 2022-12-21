@@ -6,13 +6,6 @@
 #include <assert.h>
 #include <stdio.h>
 
-#include<openssl/bio.h>
-#include<openssl/ssl.h>
-#include<openssl/err.h>
-#include<openssl/pem.h>
-#include<openssl/x509.h>
-#include<openssl/x509_vfy.h>
-
 #define FTP_CONTROL_PORT 21
 #define HTTP_PORT 80
 

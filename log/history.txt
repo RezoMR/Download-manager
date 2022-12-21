@@ -1,8 +1,0 @@
-Mon Dec 19 20:06:51 2022 21 README.html
-Mon Dec 19 20:11:02 2022 21 SHA512SUMS.sign
-Mon Dec 19 20:11:53 2022 21 SHA512SUMS.sign
-Mon Dec 19 20:31:19 2022 21 README.CD-manufacture
-Mon Dec 19 20:44:57 2022 21 README.CD-manufacture
-Mon Dec 19 20:47:46 2022 21 ls-lR.gz
-Mon Dec 19 21:07:45 2022 21 ls-lR.gz
-Mon Dec 19 21:10:18 2022 21 ls-lR.gz

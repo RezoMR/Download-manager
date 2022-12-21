@@ -1,6 +1,7 @@
 #include "definitions.h"
 #include "ftp_conn.h"
 #include "http_conn.h"
+#include "fileManager.c"
 
 #include <stdlib.h>
 #include <string.h>
@@ -15,8 +16,9 @@
 int main(int argc, char *argv[]) {
     FTP_DATA ftpData;
     HTTP_DATA httpData;
+
     struct hostent * server;
-    int level0Choice, level1Choice;
+    int level0Choice, level1Choice, level3Choice;
 
     while (1) {
         while (ftpData.exit == 0 || httpData.exit == 0) {
@@ -54,6 +56,29 @@ int main(int argc, char *argv[]) {
             case 2:
                 printLogHistory();
                 break;
+                /*
+
+
+                           case 3:
+                               level3Choice = printOptions();
+
+                               switch(level3Choice) {
+                                   case 1:
+
+                                       break;
+
+                                   case2:
+
+                                       break;
+
+                                   case3:
+
+                                       break;
+                               }
+
+                               break;*/
+
+
             case 0:
                 return(EXIT_SUCCESS);
 
