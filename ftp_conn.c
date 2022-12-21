@@ -115,6 +115,9 @@ void * ftp_data_clientSocket(void * data) {
             printf("Error writing file during FTP file download\n");
         } else {
             while ((receivedBytes = recv(sock, fileData, 1024, 0))) {
+                while(ftpData->paused == 1) {
+                    sleep(5);
+                }
                 if (ftpData->finished == 1) {
                     close(sock);
                     fclose(file);

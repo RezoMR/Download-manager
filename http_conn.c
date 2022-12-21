@@ -128,7 +128,10 @@ void * http_clientSocket(void * data) {
     httpData->exit = 1;
 
     while((receivedBytes = recv(sock, receivedData, 1024, 0))){
-        if(receivedBytes == -1 || httpData->finished == 1){
+        while(httpData->paused == 1) {
+            sleep(5);
+        }
+        if(receivedBytes < 1 || httpData->finished == 1){
             if (DEBUG)
                 printf("ERROR: HTTP receive file.\n");
             fclose(file);

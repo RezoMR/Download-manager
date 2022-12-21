@@ -61,7 +61,7 @@ int main(int argc, char *argv[]) {
                 data = malloc(sizeof(DATA));
                 pthread_t *serviceThread = malloc(sizeof(pthread_t));
                 data->thread = serviceThread;
-                data->stopped = 0;
+                data->paused = 0;
                 data->finished = 0;
                 data->exit = 0;
                 level1Choice = level1Choices();
@@ -88,7 +88,7 @@ int main(int argc, char *argv[]) {
                     }
                 }
                 if (DEBUG)
-                    pthread_join(serviceThread, NULL);
+                    pthread_join(*serviceThread, NULL);
                 break;
             case 2:
                 printLogHistory();

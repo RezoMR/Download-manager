@@ -24,7 +24,7 @@ typedef struct data {
     int dataSock;
     char * fileName;
     int exit;
-    int stopped;
+    int paused;
     int finished;
     pthread_t * thread;
 } DATA;
@@ -34,7 +34,7 @@ void printError(char *str);
 int level1Choices();
 int level0Choices();
 int showDownloadsChoices();
-int getDownloadToCancel();
+int getIntValue();
 
 int createSocket(struct hostent * server, int port);
 int logAction(char * fileName, int port);

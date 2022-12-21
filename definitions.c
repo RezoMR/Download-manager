@@ -77,28 +77,18 @@ void printLogHistory() {
 }
 
 int showDownloadsChoices() {
-    int choice;
-
     printf("Press 1 to show running downloads\n");
     printf("Press 2 cancel a download\n");
-    printf("Press 3 to stop a download\n");
+    printf("Press 3 to pause a download\n");
+    printf("Press 4 to resume a download\n");
     printf("Press 0 to go back\n");
-    while (1) {
-        if (scanf("%d", &choice) == 1)
-            break;
-        else
-            printf("You put in wrong value... please retry\n");
-        while (getchar() != '\n')
-            continue;
-    }
 
-    return choice;
+    return getIntValue();
 }
 
-int getDownloadToCancel() {
+int getIntValue() {
     int choice;
 
-    printf("Put in ID of a download to cancel\n");
     while (1) {
         if (scanf("%d", &choice) == 1)
             break;
@@ -120,18 +110,49 @@ void showDownloads(DATA ** downloads) {
             case 1:
                 for (int i = 0; i < ALLOWED_DOWNLOADS; i++) {
                     if (downloads[i] != NULL) {
-                        printf("ID: %d; PROTOCOL: %d; NAME: %s\n", i, downloads[i]->controlPort,
-                               downloads[i]->fileName);
+                        char * state;
+                        if (downloads[i]->paused == 0)
+                            state = "RUNNING";
+                        else
+                            state = "PAUSED";
+                        printf("ID: %d; PROTOCOL: %d; NAME: %s STATE: %s\n", i, downloads[i]->controlPort,
+                               downloads[i]->fileName, state);
                     }
                 }
                 break;
             case 2:
-                id = getDownloadToCancel();
+                printf("Put in ID of a download to cancel\n");
+                id = getIntValue();
 
                 if (downloads[id] == NULL)
                     printf("Download with this ID does not exist!\n");
                 else {
                     downloads[id]->finished = 1;
+                }
+                break;
+            case 3:
+                printf("Put in ID of a download to pause\n");
+                printf("(WARNING: HTTP download session breaks after a while of being stopped)\n");
+                id = getIntValue();
+
+                if (downloads[id] == NULL)
+                    printf("Download with this ID does not exist!\n");
+                else if (downloads[id]->paused == 1)
+                    printf("Download with this ID is already paused!\n");
+                else {
+                    downloads[id]->paused = 1;
+                }
+                break;
+            case 4:
+                printf("Put in ID of a download to resume\n");
+                id = getIntValue();
+
+                if (downloads[id] == NULL)
+                    printf("Download with this ID does not exist!\n");
+                else if (downloads[id]->paused == 0)
+                    printf("Download with this ID is not paused!\n");
+                else {
+                    downloads[id]->paused = 0;
                 }
                 break;
             default:
