@@ -98,6 +98,7 @@ int level0Choices() {
 
     printf("Press 1 to download a file\n");
     printf("Press 2 to show download history\n");
+    printf("Press 3 to manage Directories and Files\n");
     printf("Press 0 to end application\n");
     while (1) {
         if (scanf("%d", &choice) == 1)

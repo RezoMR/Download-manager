@@ -56,28 +56,27 @@ int main(int argc, char *argv[]) {
             case 2:
                 printLogHistory();
                 break;
-                /*
 
+            case 3:
 
-                           case 3:
-                               level3Choice = printOptions();
+                level3Choice = printOptions();
 
-                               switch(level3Choice) {
-                                   case 1:
+                switch(level3Choice) {
+                    case 1:
+                        break;
 
-                                       break;
+                    case2:
 
-                                   case2:
+                        break;
 
-                                       break;
+                    case3:
 
-                                   case3:
+                        break;
+                    case0:
+                        return(EXIT_SUCCESS);
+                }
 
-                                       break;
-                               }
-
-                               break;*/
-
+                break;
 
             case 0:
                 return(EXIT_SUCCESS);

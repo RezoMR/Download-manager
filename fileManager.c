@@ -2,21 +2,29 @@
 // Created by Matúš on 21. 12. 2022.
 //
 
+#include "fileManager.h"
 
-#include<stdio.h>
-#include<string.h>
-#include<dirent.h>
-#include <unistd.h>
-#include <sys/stat.h>
-#include <stdlib.h>
-
-struct  GlobalPath{
-    char *globaPath;			/* Global path like C:\....  */
-}GP;
+//#include<stdio.h>
+//#include<string.h>
+//#include<dirent.h>
+//#include <unistd.h>
+//#include <sys/stat.h>
+//#include <stdlib.h>
 
 
-int setGP(char *path) {
-    GP.globaPath = path;
+
+int getPath() {
+    printf("Write the path: \n");
+    char * string = malloc(sizeof(char) * (255 + 1));
+
+    while (1) {
+        if (scanf("%d", &string) == 1)
+            break;
+        else
+            printf("You put in wrong value... please retry\n");
+        while (getchar() != '\n')
+            continue;
+    }
 }
 
 int printOptions() {
@@ -39,11 +47,14 @@ int printOptions() {
 }
 
 
-int makeDir(char *name) {
-   GP.globaPath = name;
-    int status = 0;
+int makeDir(char *path, char * name) {
+    GP * gp = path;
+    int status;
+    char * ReverseSlash = "\\";
+    strcat(path, ReverseSlash);
+    strcat(path, name);
 
-    status = mkdir(name, 777);
+    status = mkdir(path, 777);
 
     if (status == 0)
         printf("Directory was created successfully\n");
@@ -54,8 +65,13 @@ int makeDir(char *name) {
 
 }
 
-int delDir(char *name) {
-    int status =2;
+int delDir(char *path, char * name) {
+    GP * gp = path;
+    char * ReverseSlash = "\\";
+    strcat(path, ReverseSlash);
+    strcat(path, name);
+
+    int status;
     status = rmdir(name);
 
     if (status == 0)
