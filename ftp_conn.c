@@ -85,6 +85,10 @@ void * ftp_data_clientSocket(void * data) {
     DATA * ftpData = (DATA *)data;
     int sock = ftpData->dataSock;
 
+    while (time(NULL) < ftpData->schedule)
+        sleep(1);
+    ftpData->schedule = 0;
+
     int	receivedBytes;
     char fileData[1024];
     char * fileName = ftpData->fileName;
@@ -283,6 +287,7 @@ void * ftp_control_clientSocket(void * data) {
         switch (value) {
             case 1:
                 ftpData->fileName = ftp_data_fileName();
+                ftpData->schedule = getSchedule();
                 pthread_create(&controlThread, NULL, ftp_data_clientSocket, (void *)ftpData);
                 ftpData->exit = 1;
                 pthread_join(controlThread, NULL);

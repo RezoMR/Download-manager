@@ -64,6 +64,7 @@ int main(int argc, char *argv[]) {
                 data->paused = 0;
                 data->finished = 0;
                 data->exit = 0;
+                data->schedule = 0;
                 level1Choice = level1Choices();
                 data->server = server;
                 switch(level1Choice) {

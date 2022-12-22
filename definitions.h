@@ -26,6 +26,7 @@ typedef struct data {
     int exit;
     int paused;
     int finished;
+    long schedule;
     pthread_t * thread;
 } DATA;
 
@@ -35,6 +36,7 @@ int level1Choices();
 int level0Choices();
 int showDownloadsChoices();
 int getIntValue();
+long getSchedule();
 
 int createSocket(struct hostent * server, int port);
 int logAction(char * fileName, int port);

@@ -101,6 +101,27 @@ int getIntValue() {
     return choice;
 }
 
+long getSchedule() {
+    printf("Press 1 if you want to schedule your download\n");
+    printf("Press 0 if you don't want to schedule your download\n");
+    int value = getIntValue();
+    if (value != 1)
+        return 0;
+
+    int hour, minute, second, futureTime = 0;
+    printf("Now you should put in timer values, after which your download will start\n");
+    printf("Put in number of HOURS to wait until download starts:\n");
+    hour = getIntValue();
+    printf("Put in number of MINUTES to wait until download starts:\n");
+    minute = getIntValue();
+    printf("Put in number of SECONDS to wait until download starts:\n");
+    second = getIntValue();
+
+    futureTime = second + (60 * minute) + (60 * 60 * hour);
+
+    return time(NULL) + futureTime;
+}
+
 void showDownloads(DATA ** downloads) {
     int id;
 
@@ -111,7 +132,9 @@ void showDownloads(DATA ** downloads) {
                 for (int i = 0; i < ALLOWED_DOWNLOADS; i++) {
                     if (downloads[i] != NULL) {
                         char * state;
-                        if (downloads[i]->paused == 0)
+                        if (downloads[i]->schedule > 0)
+                            state = "SCHEDULED";
+                        else if (downloads[i]->paused == 0)
                             state = "RUNNING";
                         else
                             state = "PAUSED";

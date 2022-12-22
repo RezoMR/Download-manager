@@ -47,7 +47,8 @@ int readHttpStatus(int sock) {
     strtok(ptr, " ");
     char * result = strtok(NULL, " ");
     response = atoi(result);
-    printf("HTTP response status: %d\n", response);
+    if (DEBUG)
+        printf("HTTP response status: %d\n", response);
     if (receivedBytes > 0)
         return response;
     return 0;
@@ -89,13 +90,35 @@ int parseHttpHeader(int sock) {
 
 void * http_clientSocket(void * data) {
     DATA * httpData = (DATA *)data;
-    int sock = createSocket(httpData->server, httpData->controlPort);
 
     char * filePath = http_filePath();
+    int sock = createSocket(httpData->server, httpData->controlPort);
     char * httpRequestHeaders = prepareHttpHeaders(httpData->server->h_name, filePath);
     char * fileName = malloc(sizeof(char) * 256);
     fileName = strcpy(fileName, strrchr(filePath, '/') + 1);
+
     httpData->fileName = fileName;
+    send(sock, httpRequestHeaders, strlen(httpRequestHeaders), 0);
+
+    int httpStatus = readHttpStatus(sock);
+    if (httpStatus != 200) {
+        printf("ERROR: HTTP response status\n");
+        close(sock);
+        free(httpRequestHeaders);
+        free(filePath);
+        httpData->finished = 1;
+        return NULL;
+    }
+    printf("HTTP response status: %d\n", httpStatus);
+    close(sock);
+
+    httpData->schedule = getSchedule();
+    httpData->exit = 1;
+    while (time(NULL) < httpData->schedule)
+        sleep(1);
+    httpData->schedule = 0;
+
+    sock = createSocket(httpData->server, httpData->controlPort);
     send(sock, httpRequestHeaders, strlen(httpRequestHeaders), 0);
 
     if (readHttpStatus(sock) != 200) {
@@ -122,10 +145,13 @@ void * http_clientSocket(void * data) {
     FILE* file = fopen(fileName,"wb");
     if (!file) {
         printf("Error writing file\n");
-        return 0;
+        close(sock);
+        free(httpRequestHeaders);
+        free(filePath);
+        return NULL;
     }
-    printf("HTTP downloading file: %s.\n", fileName);
-    httpData->exit = 1;
+    if (DEBUG)
+        printf("HTTP downloading file: %s.\n", fileName);
 
     while((receivedBytes = recv(sock, receivedData, 1024, 0))){
         while(httpData->paused == 1) {
@@ -134,6 +160,7 @@ void * http_clientSocket(void * data) {
         if(receivedBytes < 1 || httpData->finished == 1){
             if (DEBUG)
                 printf("ERROR: HTTP receive file.\n");
+            httpData->finished = 1;
             fclose(file);
             close(sock);
             free(httpRequestHeaders);
