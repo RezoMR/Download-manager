@@ -4,7 +4,6 @@
 
 #include <stdlib.h>
 #include <string.h>
-
 #include <netdb.h>
 #include <unistd.h>
 #include <pthread.h>
@@ -21,11 +20,15 @@ int main(int argc, char *argv[]) {
     int usedCapacity = 0;
 
     int performingAction;
+    pthread_mutex_t logMutex;
+    pthread_mutex_init(&logMutex, NULL);
 
     while (1) {
         for (int i = 0; i < ALLOWED_DOWNLOADS; i++) {
             if (downloads[i] != NULL && downloads[i]->finished == 1) {
-                free(downloads[i]->fileName);
+                if (downloads[i] != NULL)
+                    free(downloads[i]->fileName);
+                pthread_join(*downloads[i]->thread, NULL); // do this step to avoid memory leaks
                 free(downloads[i]->thread);
                 free(downloads[i]);
                 downloads[i] = NULL;
@@ -61,12 +64,16 @@ int main(int argc, char *argv[]) {
                 data = malloc(sizeof(DATA));
                 pthread_t *serviceThread = malloc(sizeof(pthread_t));
                 data->thread = serviceThread;
+                data->logMutex = &logMutex;
+
                 data->paused = 0;
                 data->finished = 0;
                 data->exit = 0;
                 data->schedule = 0;
+
                 level1Choice = level1Choices();
                 data->server = server;
+                data->fileName = NULL;
                 switch(level1Choice) {
                     case 1:
                         data->controlPort = FTP_CONTROL_PORT;
@@ -92,15 +99,17 @@ int main(int argc, char *argv[]) {
                     pthread_join(*serviceThread, NULL);
                 break;
             case 2:
+                pthread_mutex_lock(&logMutex);
                 printLogHistory();
+                pthread_mutex_unlock(&logMutex);
                 break;
             case 3:
                 showDownloads(downloads);
                 break;
             case 0:
+                pthread_mutex_destroy(&logMutex);
                 free(downloads);
                 return(EXIT_SUCCESS);
-
         }
     }
 }

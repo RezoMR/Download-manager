@@ -85,10 +85,6 @@ void * ftp_data_clientSocket(void * data) {
     DATA * ftpData = (DATA *)data;
     int sock = ftpData->dataSock;
 
-    while (time(NULL) < ftpData->schedule)
-        sleep(1);
-    ftpData->schedule = 0;
-
     int	receivedBytes;
     char fileData[1024];
     char * fileName = ftpData->fileName;
@@ -111,9 +107,19 @@ void * ftp_data_clientSocket(void * data) {
     strcat(command, "\r\n");
     write(ftpData->controlSock, command, strlen(command));
     recv(ftpData->controlSock, reply, BUFSIZ, 0);
-    if (DEBUG)
-        printf("Response %s", reply);
+    printf("Response %s", reply);
     if (atoi(reply) == 200 || atoi(reply) == 150) {
+        ftpData->schedule = getSchedule();
+        ftpData->exit = 1;
+        while (time(NULL) < ftpData->schedule) {
+            if (ftpData->finished == 1) {
+                ftpData->schedule = 0;
+                return NULL;
+            }
+            sleep(1);
+        }
+        ftpData->schedule = 0;
+
         FILE* file = fopen(fileName,"wb");
         if (!file) {
             printf("Error writing file during FTP file download\n");
@@ -131,10 +137,18 @@ void * ftp_data_clientSocket(void * data) {
             }
             fclose(file);
         }
+        pthread_mutex_lock(ftpData->logMutex);
         logAction(fileName, FTP_CONTROL_PORT);
+        pthread_mutex_unlock(ftpData->logMutex);
+    } else {
+        close(sock);
+        ftpData->dataSock = -1;
+        free(ftpData->fileName);
+        ftpData->fileName = NULL;
     }
     if (DEBUG)
         printf("File downloaded successfully using FTP protocol.\n");
+
     return NULL;
 }
 
@@ -154,9 +168,6 @@ void ftp_data_list(DATA * data) {
     if (atoi(reply) == 150) {
         recv(sock, &reply, sizeof(reply), 0);
         printf("LIST reply:\n%s\n", reply);
-    }
-    else {
-        printf("Bad request\n");
     }
 }
 
@@ -263,6 +274,9 @@ void * ftp_control_clientSocket(void * data) {
     int loginResult = ftp_login(&sock);
     if (loginResult == 1) {
         printf("Login unsucessful\n");
+        close(sock);
+        free(response);
+        ftpData->finished = 1;
         return NULL;
     }
     printf("Login sucessful\n");
@@ -287,9 +301,7 @@ void * ftp_control_clientSocket(void * data) {
         switch (value) {
             case 1:
                 ftpData->fileName = ftp_data_fileName();
-                ftpData->schedule = getSchedule();
                 pthread_create(&controlThread, NULL, ftp_data_clientSocket, (void *)ftpData);
-                ftpData->exit = 1;
                 pthread_join(controlThread, NULL);
                 break;
             case 2:

@@ -81,8 +81,8 @@ int parseHttpHeader(int sock) {
         } else {
             receivedBytes = -1;
         }
-
-        printf("HTTP header Content-Length: %d\n", receivedBytes);
+        if (DEBUG)
+            printf("HTTP header Content-Length: %d\n", receivedBytes);
     }
 
     return receivedBytes ;
@@ -95,8 +95,6 @@ void * http_clientSocket(void * data) {
     int sock = createSocket(httpData->server, httpData->controlPort);
     char * httpRequestHeaders = prepareHttpHeaders(httpData->server->h_name, filePath);
     char * fileName = malloc(sizeof(char) * 256);
-    fileName = strcpy(fileName, strrchr(filePath, '/') + 1);
-
     httpData->fileName = fileName;
     send(sock, httpRequestHeaders, strlen(httpRequestHeaders), 0);
 
@@ -109,13 +107,22 @@ void * http_clientSocket(void * data) {
         httpData->finished = 1;
         return NULL;
     }
+    fileName = strcpy(fileName, strrchr(filePath, '/') + 1);
     printf("HTTP response status: %d\n", httpStatus);
     close(sock);
 
     httpData->schedule = getSchedule();
     httpData->exit = 1;
-    while (time(NULL) < httpData->schedule)
+    while (time(NULL) < httpData->schedule) {
+        if (httpData->finished == 1) {
+            close(sock);
+            free(httpRequestHeaders);
+            free(filePath);
+            httpData->schedule = 0;
+            return NULL;
+        }
         sleep(1);
+    }
     httpData->schedule = 0;
 
     sock = createSocket(httpData->server, httpData->controlPort);
@@ -178,7 +185,9 @@ void * http_clientSocket(void * data) {
         printf("HTTP file successfully downloaded.\n");
 
     fclose(file);
+    pthread_mutex_lock(httpData->logMutex);
     logAction(fileName, HTTP_PORT);
+    pthread_mutex_unlock(httpData->logMutex);
     close(sock);
     free(httpRequestHeaders);
     free(filePath);

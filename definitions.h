@@ -22,11 +22,14 @@ typedef struct data {
     int dataPort;
     int controlSock;
     int dataSock;
+
     char * fileName;
     int exit;
     int paused;
     int finished;
     long schedule;
+
+    pthread_mutex_t * logMutex;
     pthread_t * thread;
 } DATA;
 
