@@ -58,24 +58,7 @@ int main(int argc, char *argv[]) {
                 break;
 
             case 3:
-
-                level3Choice = printOptions();
-
-                switch(level3Choice) {
-                    case 1:
-                        break;
-
-                    case2:
-
-                        break;
-
-                    case3:
-
-                        break;
-                    case0:
-                        return(EXIT_SUCCESS);
-                }
-
+                fileManager();
                 break;
 
             case 0:
