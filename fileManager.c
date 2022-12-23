@@ -4,12 +4,20 @@
 
 #include "fileManager.h"
 
+char * scanner(){
+    char * string = malloc(sizeof(char) * (255 + 1));
+    while(true) {
+        printf("Enter the name: \n");
+        if (scanf("%255s", string) != 1) {
+            printf("Bad input, please retry");
+            continue;
+        }
+        break;
+    }
+    return string;
+}
 
 int fileManager() {
-    char * string = malloc(sizeof(char) * (255 + 1));
-    char * file = malloc(sizeof(char) * (255 + 1));
-    char * dir = malloc(sizeof(char) * (255 + 1));
-    char * targetDir = malloc(sizeof(char) * (255 + 1));
     int choice = printOptions();
 
     switch (choice) {
@@ -17,100 +25,56 @@ int fileManager() {
         case 1://-------------MAKE DIRECTORY------------
             printf("You choose make Directory\n");
 
-            while(true) {
-                printf("Enter the name: \n");
-                if (scanf("%255s", string) != 1) {
-                    printf("Bad input, please retry");
-                    continue;
-                }
-                break;
-            }
+            char * string = scanner();
             makeDir(string);
+            free(string);
             break;
         case 2:   //-------------DELETE DIRECTORY------------
 
             printf("You choose delete Directory\n");
             printDir();
-            while(true) {
-                printf("Enter the name: \n");
-                if (scanf("%255s", string) != 1) {
-                    printf("Bad input, please retry");
-                    continue;
-                }
-                break;
-            }
-            delDir(string);
+            char * string1 = scanner();
+            delDir(string1);
+            free(string1);
             break;
 
+        case 3:     //dorobit move file --------------------------
 
-
-        case 3:           //dorobit------------------------------------
-            printf("You choose rename Directory\n");
-
-            break;
-
-
-
-        case 5:     //dorobit move file --------------------------
-            printDir();
-
-            printf("Choose Directory: \n");
-            while(true) {
-                printf("Enter the name of Directory: \n");
-                if (scanf("%255s", dir) != 1) {
-                    printf("Bad input, please retry");
-                    continue;
-                }
-                break;
-            }
-            printDirE(dir);
-
-            while(true) {
-                printf("Enter the name of File: \n");
-                if (scanf("%255s", file) != 1) {
-                    printf("Bad input, please retry");
-                    continue;
-                }
-                break;
-            }
-
-
-            strcat(dir, "/");
-            strcat(dir, file);
-
-            while(true) {
-                printf("Enter the name of Target Directory: \n");
-                if (scanf("%255s", targetDir) != 1) {
-                    printf("Bad input, please retry");
-                    continue;
-                }
-                break;
-            }
-
-
-            moveFile(targetDir, dir);
-
-            break;
-        case 6:   //-------------WRITE FILES IN DIRECTORY------------
             printDir();
             printf("Choose Directory: \n");
-            while(true) {
-                printf("Enter the name of Directory: \n");
-                if (scanf("%255s", dir) != 1) {
-                    printf("Bad input, please retry");
-                    continue;
-                }
-                break;
-            }
-            printDirE(dir);
+            char * string2 = scanner();
+            printDirE(string2);
+            printf("Choose the File: \n");
+            char * string3 = scanner();
+            printf("In which directory: \n");
+            char * string4 = scanner();
 
+
+            strcat(string2, "/");
+            strcat(string2, string3);
+
+            strcat(string4, "/");
+            strcat(string4, string3);
+
+
+//            printf(string2);
+//            printf(string4);
+            moveFile(string4, string2);
+
+            free(string3);
+            free(string4);
+            free(string2);
+            break;
+
+        case 4:   //-------------PRINTOUT FILES IN DIRECTORY------------
+            printDir();
+            printf("Choose Directory: \n");
+            char * string5 = scanner();
+            printDirE(string5);
+            free(string5);
             break;
     }
 
-free(file);
-free(dir);
-free(string);
-free(targetDir);
 }
 
 
@@ -118,10 +82,8 @@ int printOptions() {
     int choice;
     printf("Press 1 to Make Directory\n");
     printf("Press 2 to Delete Directory\n");
-    printf("Press 3 to Rename Directory\n");
-
-    printf("Press 5 to Move a File to other directory\n");
-    printf("Press 6 write files in Directory\n");
+    printf("Press 3 to Move a File to other directory\n");
+    printf("Press 4 write files in Directory\n");
 
     printf("Press 0 to end application\n");
     while (1) {
@@ -164,26 +126,14 @@ int delDir(char *path) {
     return 0;
 
 }
-//
-//int renameDirectory(char *path, char *path2) {
-//    int status = 2;
-//    status = rename(path, path2);
-//
-//    if (status == 0)
-//        printf("Directory was renamed successsfully\n");
-//    else
-//        printf("Failed to rename the Directory\n");
-//
-//    return 0;
-//}
 
 int printDir(){
     DIR *dir;
     struct dirent *entry;
     dir = opendir(".");
     if (dir == NULL) {
-        perror("opendir");
-        return 1;
+        printf("You wrote wrong name");
+        return 0;
     }
 
     while ((entry = readdir(dir)) != NULL) {
@@ -199,8 +149,8 @@ int printDirE(char * dirr){
     struct dirent *entry;
     dir = opendir(dirr);
     if (dir == NULL) {
-        perror("opendir");
-        return 1;
+        printf("You wrote wrong name");
+        return 0;
     }
 
     while ((entry = readdir(dir)) != NULL) {
@@ -212,21 +162,17 @@ int printDirE(char * dirr){
 }
 
 
-int moveFile(char * dir, char * file) {
-    char * filee = "./";
-    strcat(filee, file);
-
-
-    char * dest = "./";
-    strcat(dest, dir);
-    strcat(dest, "/");
-    strcat(dest, file);
-
-    if (rename(file, dest) != 0) {
-        perror("rename");
-        return 1;
+int moveFile(char * target, char * source) {
+    strcat(target, source);
+    int result = rename(source, target);
+    //printf("%d \n", result);
+    if (result != 0) {
+        printf("Failed to move the File\n");
+        return 0;
+    } else {
+        printf("File was moved successfully\n");
+        return 0;
     }
-    return 0;
 }
 
 

@@ -9,7 +9,7 @@
 #include <sys/stat.h>
 #include <stdlib.h>
 
-
+char * scanner();
 int fileManager();
 int printDir();
 int printDirE(char * name);
@@ -20,4 +20,4 @@ int printOptions();
 
 int makeDir(char *path);
 int delDir(char *path);
-int moveFile(char * dir, char * file);
+int moveFile(char * target, char * source);
