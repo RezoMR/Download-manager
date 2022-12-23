@@ -21,3 +21,4 @@ int printOptions();
 int makeDir(char *path);
 int delDir(char *path);
 int moveFile(char * target, char * source);
+int removeFile(char * path);

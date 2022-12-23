@@ -9,7 +9,7 @@ char * scanner(){
     while(true) {
         //printf("Enter the name: \n");
         if (scanf("%255s", string) != 1) {
-            printf("Bad input, please retry");
+            printf("Bad input, please retry\n");
             continue;
         }
         break;
@@ -40,7 +40,7 @@ int fileManager() {
             free(string1);
             break;
 
-        case 3:     //dorobit move file --------------------------
+        case 3:     //--------------------MOVE FILE BETWEEN DIRS----------------
 
             printDir();
             printf("Choose Directory from which you want to move a File: \n");
@@ -59,8 +59,6 @@ int fileManager() {
             strcat(string4, string3);
 
 
-//            printf(string2);
-//            printf(string4);
             moveFile(string4, string2);
 
             free(string3);
@@ -75,7 +73,29 @@ int fileManager() {
             printDirE(string5);
             free(string5);
             break;
+        case 5: //-----------REMOVE FILE-------------
+            printDir();
+            printf("Choose Directory: \n");
+            char * string6 = scanner();
+
+
+            printDirE(string6);
+            printf("Choose the File to remove: \n");
+            char * string7 = scanner();
+
+            strcat(string6, "/");
+            strcat(string6, string7);
+
+            removeFile(string6);
+
+            free(string6);
+            free(string7);
+            break;
+
     }
+
+
+
 
 }
 
@@ -86,7 +106,7 @@ int printOptions() {
     printf("Press 2 to Delete Directory\n");
     printf("Press 3 to Move a File to other directory\n");
     printf("Press 4 print files in Directory\n");
-
+    printf("Press 5 Remove a File\n");
     printf("Press 0 to end application\n");
     while (1) {
         if (scanf("%d", &choice) == 1)
@@ -165,9 +185,7 @@ int printDirE(char * dirr){
 
 
 int moveFile(char * target, char * source) {
-    strcat(target, source);
     int result = rename(source, target);
-    //printf("%d \n", result);
     if (result != 0) {
         printf("Failed to move the File\n");
         return 0;
@@ -177,7 +195,12 @@ int moveFile(char * target, char * source) {
     }
 }
 
+int removeFile(char * path){
+    if (remove(path) != 0) {
+        printf("Failed to remove the file\n");
+        return 1;
+    }
 
-
-
-//presun suborov medzi directories,
+    printf("File removed successfully.\n");
+    return 0;
+}
