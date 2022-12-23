@@ -7,7 +7,7 @@
 char * scanner(){
     char * string = malloc(sizeof(char) * (255 + 1));
     while(true) {
-        printf("Enter the name: \n");
+        //printf("Enter the name: \n");
         if (scanf("%255s", string) != 1) {
             printf("Bad input, please retry");
             continue;
@@ -24,15 +24,17 @@ int fileManager() {
 
         case 1://-------------MAKE DIRECTORY------------
             printf("You choose make Directory\n");
-
+            printf("Put in the name: \n");
             char * string = scanner();
             makeDir(string);
+
             free(string);
             break;
         case 2:   //-------------DELETE DIRECTORY------------
 
             printf("You choose delete Directory\n");
             printDir();
+            printf("Put in name of directory\n");
             char * string1 = scanner();
             delDir(string1);
             free(string1);
@@ -41,12 +43,12 @@ int fileManager() {
         case 3:     //dorobit move file --------------------------
 
             printDir();
-            printf("Choose Directory: \n");
+            printf("Choose Directory from which you want to move a File: \n");
             char * string2 = scanner();
             printDirE(string2);
-            printf("Choose the File: \n");
+            printf("Choose the File to move: \n");
             char * string3 = scanner();
-            printf("In which directory: \n");
+            printf("Put in the name of Target Directory: \n");
             char * string4 = scanner();
 
 
@@ -83,7 +85,7 @@ int printOptions() {
     printf("Press 1 to Make Directory\n");
     printf("Press 2 to Delete Directory\n");
     printf("Press 3 to Move a File to other directory\n");
-    printf("Press 4 write files in Directory\n");
+    printf("Press 4 print files in Directory\n");
 
     printf("Press 0 to end application\n");
     while (1) {
