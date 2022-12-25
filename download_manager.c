@@ -18,7 +18,7 @@ int main(int argc, char *argv[]) {
     HTTP_DATA httpData;
 
     struct hostent * server;
-    int level0Choice, level1Choice, level3Choice;
+    int level0Choice, level1Choice;
 
     while (1) {
         while (ftpData.exit == 0 || httpData.exit == 0) {

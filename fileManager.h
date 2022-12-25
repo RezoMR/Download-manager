@@ -22,3 +22,4 @@ int makeDir(char *path);
 int delDir(char *path);
 int moveFile(char * target, char * source);
 int removeFile(char * path);
+int removeDirFile(char * path);

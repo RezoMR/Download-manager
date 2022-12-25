@@ -91,7 +91,16 @@ int fileManager() {
             free(string6);
             free(string7);
             break;
+        case 6:
+            printDir();
+            printf("Choose the File to remove: \n");
+            char * string8 = scanner();
 
+            removeFile(string8);
+
+            free(string8);
+
+            break;
     }
 
 
@@ -106,7 +115,8 @@ int printOptions() {
     printf("Press 2 to Delete Directory\n");
     printf("Press 3 to Move a File to other directory\n");
     printf("Press 4 print files in Directory\n");
-    printf("Press 5 Remove a File\n");
+    printf("Press 5 Remove a File in exact Directory\n");
+    printf("Press 6 Remove File\n");
     printf("Press 0 to end application\n");
     while (1) {
         if (scanf("%d", &choice) == 1)
@@ -196,6 +206,16 @@ int moveFile(char * target, char * source) {
 }
 
 int removeFile(char * path){
+    if (remove(path) != 0) {
+        printf("Failed to remove the file\n");
+        return 1;
+    }
+
+    printf("File removed successfully.\n");
+    return 0;
+}
+
+int removeDirFile(char * path){
     if (remove(path) != 0) {
         printf("Failed to remove the file\n");
         return 1;
