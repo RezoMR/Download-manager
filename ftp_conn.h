@@ -16,16 +16,6 @@
 extern "C" {
 #endif
 
-typedef struct ftpData {
-    struct hostent *server;
-    int controlPort;
-    int dataPort;
-    int controlSock;
-    int dataSock;
-    char * fileName;
-    int exit;
-} FTP_DATA;
-
 int ftp_control_choices();
 char * ftp_data_fileName();
 char * ftp_cwd_path();
@@ -36,9 +26,9 @@ char * recvData(int socket);
 
 void * ftp_control_clientSocket(void * data);
 void * ftp_data_clientSocket(void * data);
-void ftp_data_list(FTP_DATA * data);
-void ftp_data_cwd(FTP_DATA * data);
-void ftp_quit(FTP_DATA * data);
+void ftp_data_list(DATA * data);
+void ftp_data_cwd(DATA * data);
+void ftp_quit(DATA * data);
 
 #ifdef	__cplusplus
 }
