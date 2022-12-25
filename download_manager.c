@@ -1,6 +1,7 @@
 #include "definitions.h"
 #include "ftp_conn.h"
 #include "http_conn.h"
+#include "fileManager.c"
 
 #include <stdlib.h>
 #include <string.h>
@@ -11,7 +12,7 @@
 
 int main(int argc, char *argv[]) {
     struct hostent * server;
-    int level0Choice, level1Choice;
+    int level0Choice, level1Choice, level3Choice;
 
     DATA ** downloads = malloc(sizeof(DATA) * ALLOWED_DOWNLOADS);
     for (int i = 0; i < ALLOWED_DOWNLOADS; i++) {
@@ -106,6 +107,11 @@ int main(int argc, char *argv[]) {
             case 3:
                 showDownloads(downloads);
                 break;
+
+            case 4:
+                fileManager();
+                break;
+
             case 0:
                 pthread_mutex_destroy(&logMutex);
                 free(downloads);
