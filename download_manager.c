@@ -57,7 +57,7 @@ int main(int argc, char *argv[]) {
                 printLogHistory();
                 break;
 
-            case 3:
+            case 4:
                 fileManager();
                 break;
 
