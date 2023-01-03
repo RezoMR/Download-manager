@@ -1,7 +1,8 @@
 #include "definitions.h"
 #include "ftp_conn.h"
 #include "http_conn.h"
-#include "fileManager.c"
+#include "https_conn.h"
+#include "fileManager.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -12,7 +13,7 @@
 
 int main(int argc, char *argv[]) {
     struct hostent * server;
-    int level0Choice, level1Choice, level3Choice;
+    int level0Choice, level1Choice;
 
     DATA ** downloads = malloc(sizeof(DATA) * ALLOWED_DOWNLOADS);
     for (int i = 0; i < ALLOWED_DOWNLOADS; i++) {
@@ -23,6 +24,8 @@ int main(int argc, char *argv[]) {
     int performingAction;
     pthread_mutex_t logMutex;
     pthread_mutex_init(&logMutex, NULL);
+
+    int sslConn = initializeSSL();
 
     while (1) {
         for (int i = 0; i < ALLOWED_DOWNLOADS; i++) {
@@ -84,6 +87,14 @@ int main(int argc, char *argv[]) {
                         data->controlPort = HTTP_PORT;
                         pthread_create(serviceThread, NULL, http_clientSocket, (void *) data);
                         break;
+                    case 3:
+                        if (sslConn) {
+                            printf("SSL initialization failed, try restarting application, or don't use methods that require SSL\n");
+                            break;
+                        }
+                        data->controlPort = HTTPS_PORT;
+                        pthread_create(serviceThread, NULL, https_clientSocket, (void *) data);
+                        break;
                     default:
                         free(data->thread);
                         free(data);
@@ -107,14 +118,17 @@ int main(int argc, char *argv[]) {
             case 3:
                 showDownloads(downloads);
                 break;
-
             case 4:
                 fileManager();
                 break;
-
             case 0:
+                if (usedCapacity > 0) {
+                    printf("Downloads are still pending, cancel them or wait for them to finish before exiting the application\n");
+                    break;
+                }
                 pthread_mutex_destroy(&logMutex);
                 free(downloads);
+                destroySSL();
                 return(EXIT_SUCCESS);
         }
     }

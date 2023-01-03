@@ -8,6 +8,7 @@
 
 #define FTP_CONTROL_PORT 21
 #define HTTP_PORT 80
+#define HTTPS_PORT 443
 #define ALLOWED_DOWNLOADS 3
 
 #define DEBUG false

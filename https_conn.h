@@ -1,8 +1,17 @@
-//
-// Created by roman on 1/3/23.
-//
+#include <openssl/ssl.h>
+#include <openssl/err.h>
 
-#ifndef DOWNLOAD_MANAGER_HTTPS_CONN_H
-#define DOWNLOAD_MANAGER_HTTPS_CONN_H
+#ifdef	__cplusplus
+extern "C" {
+#endif
 
-#endif //DOWNLOAD_MANAGER_HTTPS_CONN_H
+void * https_clientSocket(void * data);
+int readHttpsStatus(SSL * ssl);
+int parseHttpsHeader(SSL * ssl);
+
+int initializeSSL();
+void destroySSL();
+
+#ifdef	__cplusplus
+}
+#endif

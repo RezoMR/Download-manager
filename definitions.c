@@ -155,7 +155,7 @@ void showDownloads(DATA ** downloads) {
                 break;
             case 3:
                 printf("Put in ID of a download to pause\n");
-                printf("(WARNING: HTTP download session breaks after a while of being stopped)\n");
+                printf("(WARNING: HTTP/S download session breaks after a while of being stopped)\n");
                 id = getIntValue();
 
                 if (downloads[id] == NULL)
@@ -190,6 +190,7 @@ int level1Choices() {
 
     printf("Press 1 for FTP transfer\n");
     printf("Press 2 for HTTP transfer\n");
+    printf("Press 3 for HTTPS transfer\n");
     printf("Press 0 to go back\n");
     while (1) {
         if (scanf("%d", &choice) == 1)
@@ -209,7 +210,7 @@ int level0Choices() {
     printf("Press 1 to download a file\n");
     printf("Press 2 to show download history\n");
     printf("Press 3 to show actions for running downloads\n");
-    printf("Press 4 to manage Directories and Files\n");
+    printf("Press 4 to manage directories and files\n");
     printf("Press 0 to end application\n");
     while (1) {
         if (scanf("%d", &choice) == 1)

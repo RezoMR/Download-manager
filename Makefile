@@ -1,4 +1,4 @@
-LIBS = -pthread -ggdb3
+LIBS = -pthread -ggdb3 -lssl -lcrypto
 SRCS = $(wildcard *.c)
 OBJS = $(SRCS:.c=.o)
 
@@ -7,10 +7,10 @@ OBJS = $(SRCS:.c=.o)
 all: download_manager
 
 download_manager: $(OBJS)
-	gcc $(LIBS) $(OBJS) -o download_manager
+	gcc $(OBJS) $(LIBS) -o download_manager
 
 download_manager.o: $(SRCS)
-	gcc -c $(CFLAGS) $(LIBS) $(SRCS)
+	gcc -c $(CFLAGS) $(SRCS) $(LIBS)
 
 clean:
 	@rm -rf $(OBJS) download_manager
