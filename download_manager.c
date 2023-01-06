@@ -119,6 +119,10 @@ int main(int argc, char *argv[]) {
                 showDownloads(downloads);
                 break;
             case 4:
+                if (usedCapacity > 0) {
+                    printf("You can't use file manager while downloads are pending. Wait until downloads are finished\n");
+                    break;
+                }
                 fileManager();
                 break;
             case 0:
